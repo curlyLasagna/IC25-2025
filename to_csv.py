@@ -1,9 +1,16 @@
-from pypdf import PdfReader
+import pdfplumber
 import csv
 
-reader = PdfReader("./yo.pdf")
-for p in reader.pages:
-    print(p.extract_text())
-    # with open("data.csv", "w", newline="") as csvFile:
-    # writer = csv.writer(csvFile)
-    # writer.writerow(p.extract_text())
+with pdfplumber.open("yo.pdf") as pdf:
+    # Open CSV file once and write headers
+    with open("data.csv", "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["id", "desc"])
+
+        for i, p in enumerate(pdf.pages):
+            table = p.extract_table()
+            if table:
+                for row in table:
+                    if row and len(row) >= 2:
+                        id_val = "".join(row[0].split("\n"))
+                        writer.writerow([id_val, row[1]])
