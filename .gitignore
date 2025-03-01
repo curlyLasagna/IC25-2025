@@ -9,5 +9,9 @@ wheels/
 # Virtual environments
 .venv
 
+.DS_Store
+
+# Ignore any data in the data directory.
 data/*.docx
 data/*.pdf
+data/*.csv
