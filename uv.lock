@@ -1,0 +1,22 @@
+version = 1
+requires-python = ">=3.13"
+
+[[package]]
+name = "ic25-2025"
+version = "0.1.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "pypdf" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "pypdf", specifier = ">=5.3.0" }]
+
+[[package]]
+name = "pypdf"
+version = "5.3.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/2a/c6/9b0920ddcb29ce980f84f2fb585b515b1431625a1b9aeb5fd5753ee0f62e/pypdf-5.3.0.tar.gz", hash = "sha256:08393660dfea25b27ec6fe863fb2f2248e6270da5103fae49e9dea8178741951", size = 5024226 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4d/2b/3b25ddd464c4265ba65cec794012aab64f1d7dbbdfd170c567d84a0b26c9/pypdf-5.3.0-py3-none-any.whl", hash = "sha256:d7b6db242f5f8fdb4990ae11815c394b8e1b955feda0befcce862efd8559c181", size = 300731 },
+]
