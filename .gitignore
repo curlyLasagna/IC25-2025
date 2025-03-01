@@ -9,5 +9,5 @@ wheels/
 # Virtual environments
 .venv
 
-*.pdf
-*.csv
+data/*.docx
+data/*.pdf
