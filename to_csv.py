@@ -1,5 +1,7 @@
-import pdfplumber
+"""Convert FOIA requests page to a singular CSV file."""
+
 import csv
+import pdfplumber
 
 with pdfplumber.open("yo.pdf") as pdf:
     # Open CSV file once and write headers
