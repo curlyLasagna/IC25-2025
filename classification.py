@@ -40,7 +40,7 @@ def match_categories(foia_description: str, categories: dict) -> str:
     v_adjectives = []
     for word in foia_description.split(" "):
         for dept, dept_keywords in categories.items():
-            if word in dept_keywords:
+            if word in dept_keywords.split(","):
                 if dept not in v_adjectives:
                     v_adjectives.append(f"{dept[0]} - {dept[1]}")
 
