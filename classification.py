@@ -20,7 +20,7 @@ def initialize_foia_keyword_map():
     for i, row in enumerate(reader):
         department = row[0]
         poc_name = row[2]
-        
+
         # skip the first row
         if i == 0:
             continue
@@ -40,9 +40,10 @@ def match_categories(foia_description: str, categories: dict) -> str:
     v_adjectives = []
     for word in foia_description.split(" "):
         for dept, dept_keywords in categories.items():
+            dept_name_and_poc = f"{dept[0]} - {dept[1]}"
             if word in dept_keywords.split(","):
-                if dept not in v_adjectives:
-                    v_adjectives.append(f"{dept[0]} - {dept[1]}")
+                if dept_name_and_poc not in v_adjectives:
+                    v_adjectives.append(dept_name_and_poc)
 
     # If we don't have any adjectives, the report is not known.
     if len(v_adjectives) < 1:
