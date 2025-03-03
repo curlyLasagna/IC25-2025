@@ -18,16 +18,20 @@ def initialize_foia_keyword_map():
 
     # Column order: Department, Keywords, Name
     for i, row in enumerate(reader):
-        department = row[0]
+        dept_name = row[0]
         poc_name = row[2]
+        
+        # combine dept name and contact name into a tuple,
+        # so its easier to grab 'n parse programatically
+        department_info = tuple([dept_name, poc_name])
 
         # skip the first row
         if i == 0:
             continue
 
-        # Load the keywords if the department is not in the map
-        if department not in keyword_dict:
-            keyword_dict[tuple([department, poc_name])] = row[1]
+        # load the keywords if the department is not in the map
+        if dept_name not in keyword_dict:
+            keyword_dict[department_info] = row[1]
 
     file.close()
     return keyword_dict
@@ -39,8 +43,9 @@ def match_categories(foia_description: str, categories: dict) -> str:
     categories = initialize_foia_keyword_map()
     v_adjectives = []
     for word in foia_description.split(" "):
-        for dept, dept_keywords in categories.items():
-            dept_name_and_poc = f"{dept[0]} - {dept[1]}"
+        for dept_info, dept_keywords in categories.items():
+            dept_name_and_poc = f"{dept_info[0]} - {dept_info[1]}"
+
             if word in dept_keywords.split(","):
                 if dept_name_and_poc not in v_adjectives:
                     v_adjectives.append(dept_name_and_poc)
@@ -66,7 +71,13 @@ def main(data, dept_keywords: dict) -> None:
     foias = open(data, "r", encoding="utf8")
     reader = csv.reader(foias, delimiter=",")
     for row in reader:
-        print(f"{row[0]} {match_categories(row[1], dept_keywords)}")
+        dept_matches = match_categories(row[1], dept_keywords)
+        res = {
+            "foiaId": row[0],
+            "departments": [x for x in dept_matches]
+        }
+        
+        print(res)
 
     foias.close()
 
@@ -74,6 +85,5 @@ def main(data, dept_keywords: dict) -> None:
 if __name__ == "__main__":
     # Load keywords into memory prior to doing anything.
     keywords = initialize_foia_keyword_map()
-
 
     main(REQUESTS_FILE, keywords)
