@@ -9,10 +9,9 @@ def home():
     return "Home"
 
 
-@app.route("/search", methods=["POST"])
+@app.route("/search", methods=["GET"])
 def handle_search():
-    user_query = request.form["query"]
-    print(user_query)
+    user_query = request.args["query"]
     return search.query_vector(user_query)
 
 
