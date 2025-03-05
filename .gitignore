@@ -16,3 +16,4 @@ data/*.docx
 data/*.pdf
 data/*.csv
 *.json
+data/*.htm
