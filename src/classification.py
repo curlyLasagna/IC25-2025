@@ -1,9 +1,17 @@
 """Classify each FOIA based on keywords"""
 
 import csv
+from types import SimpleNamespace
 
 REQUESTS_FILE = "./data/pii/data.csv"
 DEPARTMENTS_FILE = "./data/departments.csv"
+
+
+class CategoryMatch(SimpleNamespace):
+    """Define what a category match is."""
+
+    departments: list[str]
+    keywords: list[str]
 
 
 def initialize_foia_keyword_map():
@@ -37,24 +45,28 @@ def initialize_foia_keyword_map():
     return keyword_dict
 
 
-def match_categories(foia_description: str, categories: dict) -> str:
+def match_categories(foia_description: str, categories: dict) -> CategoryMatch:
     """Get category matches based off a FOIA description."""
 
     categories = initialize_foia_keyword_map()
     valid_categories = []
+    matched_keywords = []
+
     for word in foia_description.split(" "):
         for dept_info, dept_keywords in categories.items():
             dept_name_and_poc = f"{dept_info[0]} - {dept_info[1]}"
 
             if word in dept_keywords.split(",") and len(word) > 0:
                 if dept_name_and_poc not in valid_categories:
+                    matched_keywords.append(word)
                     valid_categories.append(dept_name_and_poc)
 
     # If we don't have any adjectives, the report is not known.
     if len(valid_categories) < 1:
         valid_categories.append("Unknown")
 
-    return valid_categories
+    return CategoryMatch(departments=valid_categories, keywords=matched_keywords)
+
 
 def main(data, dept_keywords: dict) -> None:
     """
@@ -66,12 +78,13 @@ def main(data, dept_keywords: dict) -> None:
     foias = open(data, "r", encoding="utf8")
     reader = csv.reader(foias, delimiter=",")
     for row in reader:
-        dept_matches = match_categories(row[1], dept_keywords)
+        classification = match_categories(row[1], dept_keywords)
         res = {
             "foiaId": row[0],
-            "departments": list(dept_matches)
+            "departments": list(classification.departments),
+            "keywords": classification.keywords,
         }
-        
+
         print(res)
 
     foias.close()
