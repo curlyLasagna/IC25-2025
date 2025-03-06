@@ -5,7 +5,7 @@ import pdfplumber
 
 with pdfplumber.open("data/pii/requests.pdf") as pdf:
     # Open CSV file once and write headers
-    with open("data/pii/requests_parsed.csv", "w", newline="") as f:
+    with open("data/pii/data.csv", "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["id", "desc"])
 

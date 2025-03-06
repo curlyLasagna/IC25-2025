@@ -20,7 +20,7 @@ def initialize_foia_keyword_map():
     for i, row in enumerate(reader):
         dept_name = row[0]
         poc_name = row[2]
-        
+
         # combine dept name and contact name into a tuple,
         # so its easier to grab 'n parse programatically
         department_info = tuple([dept_name, poc_name])
@@ -69,7 +69,7 @@ def main(data, dept_keywords: dict) -> None:
         dept_matches = match_categories(row[1], dept_keywords)
         res = {
             "foiaId": row[0],
-            "departments": [x for x in dept_matches]
+            "departments": list(dept_matches)
         }
         
         print(res)
