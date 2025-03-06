@@ -12,8 +12,6 @@ wheels/
 .DS_Store
 
 # Ignore any data in the data directory.
-data/pii/*.pdf
-data/pii/*.csv
-data/pii/*.docx
+data/pii/*
 
 *.json
