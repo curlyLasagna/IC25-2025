@@ -3,9 +3,9 @@
 import csv
 import pdfplumber
 
-with pdfplumber.open("yo.pdf") as pdf:
+with pdfplumber.open("data/pii/requests.pdf") as pdf:
     # Open CSV file once and write headers
-    with open("data.csv", "w", newline="") as f:
+    with open("data/pii/requests_parsed.csv", "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["id", "desc"])
 

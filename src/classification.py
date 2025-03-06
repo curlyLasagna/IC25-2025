@@ -2,7 +2,7 @@
 
 import csv
 
-REQUESTS_FILE = "./data/data.csv"
+REQUESTS_FILE = "./data/pii/data.csv"
 DEPARTMENTS_FILE = "./data/departments.csv"
 
 
@@ -41,25 +41,20 @@ def match_categories(foia_description: str, categories: dict) -> str:
     """Get category matches based off a FOIA description."""
 
     categories = initialize_foia_keyword_map()
-    v_adjectives = []
+    valid_categories = []
     for word in foia_description.split(" "):
         for dept_info, dept_keywords in categories.items():
             dept_name_and_poc = f"{dept_info[0]} - {dept_info[1]}"
 
             if word in dept_keywords.split(","):
-                if dept_name_and_poc not in v_adjectives:
-                    v_adjectives.append(dept_name_and_poc)
+                if dept_name_and_poc not in valid_categories:
+                    valid_categories.append(dept_name_and_poc)
 
     # If we don't have any adjectives, the report is not known.
-    if len(v_adjectives) < 1:
-        v_adjectives.append("Unknown")
+    if len(valid_categories) < 1:
+        valid_categories.append("Unknown")
 
-    return v_adjectives
-
-    # departments = open(DEPARTMENTS_FILE, "r")
-    # for entry in departments:
-    #     print(entry)
-
+    return valid_categories
 
 def main(data, dept_keywords: dict) -> None:
     """
