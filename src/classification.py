@@ -76,16 +76,24 @@ def main(data, dept_keywords: dict) -> None:
     that is equipped with handling said report
     """
     foias = open(data, "r", encoding="utf8")
+    processed_foias_file = open("results.csv", "w", encoding="utf8")
+
+    # We do not include the description because they may include PII.
+    fields = ["foia_id", "departments", "keywords"]
     reader = csv.reader(foias, delimiter=",")
+    writer = csv.DictWriter(processed_foias_file, delimiter=",", fieldnames=fields)
+
+    writer.writeheader()
+
     for row in reader:
         classification = match_categories(row[1], dept_keywords)
         res = {
-            "foiaId": row[0],
-            "departments": list(classification.departments),
-            "keywords": classification.keywords,
+            "foia_id": f"{row[0]}",
+            "departments": ",".join(classification.departments),
+            "keywords": ",".join(classification.keywords),
         }
 
-        print(res)
+        writer.writerow(res)
 
     foias.close()
 
