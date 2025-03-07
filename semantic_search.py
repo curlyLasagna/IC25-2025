@@ -15,12 +15,6 @@ def _():
 
 @app.cell
 def _(mo):
-    mo.md(r"""Previous FOIA cases will be used as test values""")
-    return
-
-
-@app.cell
-def _(mo):
     mo.md(
         r"""
         User queries are embeded so a cosine similarity may be performed between a user's query (FOIAs) and values from the vector store (list of departments and their respective keywords)
@@ -138,18 +132,6 @@ def _(mo):
 
 
 @app.cell
-def _(pd):
-    test_csv = pd.read_csv("./data/contacts.csv", usecols=["test", "name"]).dropna().merge(pd.read_csv("./data/foia.csv"), left_on="test", right_on="Request ID")[['test', 'Request Description', 'name']]
-    return (test_csv,)
-
-
-@app.cell
-def _(kw_model, test_csv):
-    test_csv['keywords'] = test_csv['Request Description'].apply(lambda x: ','.join(keyword[0] for keyword in kw_model.extract_keywords(x, use_mmr=True, stop_words=["amtrak", "foia", "documents"])))
-    return
-
-
-@app.cell
 def _(mo):
     mo.md(r"""### Encode department data""")
     return
@@ -236,7 +218,7 @@ app._unparsable_cell(
              ).mark_bar().encode(
         x=alt.X('keywords', axis=alt.Axis(labelAngle=-45)).sort('-y'),
         y=alt.Y('count')
-    ).properties(autosize="fit", width=1200).transform_filter(alt.FieldGTPredicate(field="count", gt=20)).save('unknown.html')
+    # ).properties(autosize=\"fit\", width=1200).transform_filter(alt.FieldGTPredicate(field=\"count\", gt=20)).save('unknown.html')
 
     """,
     name="_"
@@ -256,7 +238,50 @@ def _(dep_frames):
 
 
 @app.cell
+def _(deparment_df):
+    deparment_df
+    return
+
+
+@app.cell
+def _(foia_cleaned_df):
+    foia_cleaned_df
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(
+        r"""
+        ### Testing for accuracy
+
+        Using known FOIAs by their respective departments
+        """
+    )
+    return
+
+
+@app.cell
+def _(foia_cleaned_df, pd):
+    test_df = pd.read_csv("./data/department.csv", usecols=["Department", "Known FOIA"], encoding='latin-1').dropna()
+    for ii, dd in test_df.iterrows():
+        print(foia_cleaned_df[foia_cleaned_df['Request ID'] == dd['Known FOIA']]['department'])
+        # print(dd['Department'], dd['Known FOIA'])
+        # print(dd['Department'] == foia_cleaned_df[foia_cleaned_df['Request ID'] == dd['Known FOIA']])
+
+    # .merge(pd.read_csv("./data/pii/foia.csv"), left_on="test", right_on="Request ID")[['test', 'Request Description', 'name']]
+    return dd, ii, test_df
+
+
+@app.cell
+def _(foia_cleaned_df):
+    foia_cleaned_df[foia_cleaned_df['Request ID'] == '09-FOI-00002']
+    return
+
+
+@app.cell
 def _():
+    # test_csv['keywords'] = test_csv['Request Description'].apply(lambda x: ','.join(keyword[0] for keyword in kw_model.extract_keywords(x, use_mmr=True, stop_words=["amtrak", "foia", "documents"])))
     return
 
 
