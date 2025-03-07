@@ -23,7 +23,7 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
-        User queries are embeded so a cosine similarity may be performed between the query and values from the vector store
+        User queries are embeded so a cosine similarity may be performed between a user's query (FOIAs) and values from the vector store (list of departments and their respective keywords)
         ![](https://raw.githubusercontent.com/UKPLab/sentence-transformers/master/docs/img/Bi_vs_Cross-Encoder.png)
 
         **Optional**
@@ -42,7 +42,7 @@ def _(mo):
         r"""
         ### Improving results
 
-        Our main dataset is the contacts table. The department name and keyword is what is used to compare against a user's query or an existing FOIA's description.
+        Our main dataset is the departments table. The department name and keyword is what is used to compare against a user's query or an existing FOIA's description.
 
         The accuracy of returning the correct deparment solely depends on providing the right keywords for the department. 
 
@@ -71,9 +71,14 @@ def _(mo):
 @app.cell
 def _(pd):
     foia_df = pd.read_csv('./data/pii/foia.csv')
-    foia_cleaned_df = foia_df[~foia_df['Request Description'].str.contains('|'.join(["Duplicate", "Not a proper FOIA request", "unclear"]), case=False, na=False)]
-    deparment_df = pd.read_csv('./data/pii/department.csv', encoding='latin-1').fillna('')
-    return deparment_df, foia_cleaned_df, foia_df
+    foia_cleaned_df = foia_df[~foia_df['Request Description'].str.contains('|'.join(["Duplicate", "Not a proper FOIA request", "unclear", "See attached"]), case=False, na=False)]
+    return foia_cleaned_df, foia_df
+
+
+@app.cell
+def _(pd):
+    deparment_df = pd.read_csv('./data/departments.csv', encoding='latin-1').fillna('')
+    return (deparment_df,)
 
 
 @app.cell
@@ -86,7 +91,7 @@ def _(mo):
 
         #### Stop words
 
-        Stop words are words such as 'the', 'is', 'are', 'in', 'and' which are frequent words, but offer little value in solving the problem that we're trying to solve. 
+        Stop words are words such as 'the', 'is', 'are', 'in', 'and' which are frequent words, but offer little value
 
         This is a means of reducing the amount of noise from our data.
         """
@@ -169,7 +174,9 @@ def _(mo):
 
         Encode the description and its generated keywords
 
-        We then map the department that has a cosine similarity score of **40%** else, we set it as unknown.
+        This process takes a lot of time as it has to encode and compare 4k FOIAs
+
+        We then map the department that has a cosine similarity score of **.50** else, we set it as unknown.
         """
     )
     return
@@ -178,12 +185,13 @@ def _(mo):
 @app.cell
 def _(bi_encoder, dep_corpus, foia_cleaned_df, query_embeddings, util):
     for idx, data in foia_cleaned_df.iterrows():
-        foia_row = f"{data['Request Description']}|{data['keywords']}"
+        # Concatenate request description and the keywords generated 
+        foia_row = f"{data['Request Description']}"
         foia_encoding = bi_encoder.encode(foia_row)
         hit = util.semantic_search(foia_encoding, query_embeddings, top_k=1)
         dep_idx = hit[0][0]['corpus_id']
         score = hit[0][0]['score']
-        foia_cleaned_df.at[idx, 'department'] = f"{dep_corpus[dep_idx].split('|')[0]}" if score > .40 else "Uknown"
+        foia_cleaned_df.at[idx, 'department'] = f"{dep_corpus[dep_idx].split('|')[0]}" if score > .30 else "Unknown"
     return data, dep_idx, foia_encoding, foia_row, hit, idx, score
 
 
@@ -203,7 +211,9 @@ def _(alt, foia_cleaned_df):
     dep_pie = base_dep.mark_arc()
 
     dep_label = base_dep.mark_text(size=12, radius=175, limit=140).encode(text='department', color=alt.value('black'))
-    (dep_pie + dep_label).save('departments.html')
+
+    (dep_pie + dep_label)
+    # (dep_pie + dep_label).save('departments.html')
     return base_dep, dep_label, dep_pie
 
 
@@ -215,20 +225,22 @@ def _(foia_cleaned_df):
     return dep, dep_frames
 
 
-@app.cell
-def _(alt, dep_frames):
-    alt.Chart(dep_frames["Uknown"]['keywords']
+app._unparsable_cell(
+    r"""
+    alt.Chart(dep_frames[\"Uknown\"]['keywords']
               .str.split(',')
               .explode()
               .value_counts()
               .reset_index(),
-              title = "Keywords for uncategorized FOIA"
+              title = \"Keywords for uncategorized FOIA\"
              ).mark_bar().encode(
         x=alt.X('keywords', axis=alt.Axis(labelAngle=-45)).sort('-y'),
         y=alt.Y('count')
     ).properties(autosize="fit", width=1200).transform_filter(alt.FieldGTPredicate(field="count", gt=20)).save('unknown.html')
 
-    return
+    """,
+    name="_"
+)
 
 
 @app.cell
