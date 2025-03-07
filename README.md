@@ -13,7 +13,7 @@ scripts to produce results.
 Here are the files required for processing:
 
 - A CSV file of all FOIA requests - `data/pii/data.csv` (not included in repo)
-- A list of all departments - `data/departments.csv`
+- A list of all departments - [`data/departments.csv`](./data/departments.csv)
 
 There is also some information that includes personally identifiable information,
 also known as PII. This data is stored in the `data/pii/` directory, which
