@@ -15,6 +15,17 @@ def _():
 
 
 @app.cell
+def _(pd):
+    from bs4 import BeautifulSoup
+
+    soup = BeautifulSoup()
+
+    foia = pd.read_html("./data/Requests Report.htm")
+    foia[3].to_csv("./data/foia.csv")
+    return BeautifulSoup, foia, soup
+
+
+@app.cell
 def _(mo):
     mo.md(
         r"""
@@ -28,7 +39,7 @@ def _(mo):
 
 @app.cell
 def _(bi_encoder, pd):
-    contacts_df = pd.read_csv("data/contacts.csv", usecols= lambda x: x.lower() in ['name', 'department'])
+    contacts_df = pd.read_csv("data/contacts.csv", usecols= lambda x: x.lower() in ['name', 'department', 'keyword'])
     # Store each row 
     corpus = []
     for _, data in contacts_df.iterrows():
