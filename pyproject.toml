@@ -15,4 +15,5 @@ dependencies = [
     "pandas>=2.2.3",
     "sentence-transformers>=3.4.1",
     "streamlit>=1.43.0",
+    "vl-convert-python>=1.7.0",
 ]
