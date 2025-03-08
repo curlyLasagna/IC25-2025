@@ -3,8 +3,8 @@
 import csv
 from types import SimpleNamespace
 
-REQUESTS_FILE = "../data/pii/foia.csv"
-DEPARTMENTS_FILE = "../data/department.csv"
+REQUESTS_FILE = "./data/pii/data.csv"
+DEPARTMENTS_FILE = "./data/department.csv"
 
 
 class CategoryMatch(SimpleNamespace):
@@ -27,11 +27,6 @@ def initialize_foia_keyword_map():
     # Column order: Department, Keywords, Name
     for i, row in enumerate(reader):
         dept_name = row[0]
-        poc_name = row[2]
-
-        # combine dept name and contact name into a tuple,
-        # so its easier to grab 'n parse programatically
-        department_info = tuple([dept_name, poc_name])
 
         # skip the first row
         if i == 0:
@@ -39,7 +34,7 @@ def initialize_foia_keyword_map():
 
         # load the keywords if the department is not in the map
         if dept_name not in keyword_dict:
-            keyword_dict[department_info] = row[1]
+            keyword_dict[dept_name] = row[2]
 
     file.close()
     return keyword_dict
@@ -53,13 +48,11 @@ def match_categories(foia_description: str, categories: dict) -> CategoryMatch:
     matched_keywords = []
 
     for word in foia_description.split(" "):
-        for dept_info, dept_keywords in categories.items():
-            dept_name_and_poc = f"{dept_info[0]}"
-
+        for dept, dept_keywords in categories.items():
             if word in dept_keywords.split(",") and len(word) > 0:
-                if dept_name_and_poc not in valid_categories:
+                if dept not in valid_categories:
                     matched_keywords.append(word)
-                    valid_categories.append(dept_name_and_poc)
+                    valid_categories.append(dept)
 
     # If we don't have any adjectives, the report is not known.
     if len(valid_categories) < 1:
