@@ -3,8 +3,8 @@
 import csv
 from types import SimpleNamespace
 
-REQUESTS_FILE = "./data/pii/data.csv"
-DEPARTMENTS_FILE = "./data/departments.csv"
+REQUESTS_FILE = "../data/pii/foia.csv"
+DEPARTMENTS_FILE = "../data/department.csv"
 
 
 class CategoryMatch(SimpleNamespace):
@@ -21,7 +21,7 @@ def initialize_foia_keyword_map():
     """
 
     keyword_dict = {}
-    file = open(DEPARTMENTS_FILE, "r", encoding="utf8")
+    file = open(DEPARTMENTS_FILE, "r", encoding="latin-1")
     reader = csv.reader(file)
 
     # Column order: Department, Keywords, Name

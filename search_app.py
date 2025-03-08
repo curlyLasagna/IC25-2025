@@ -60,7 +60,7 @@ if user_query:
             kw_model = KeyBERT()
             keywords = kw_model.extract_keywords(user_query)
             st.text(
-                f"FOIA contains these keywords: {[x[0] for x in keywords]}. Add these keywords to the selected department?"
+                f"FOIA contains these keywords: {[x[0] for x in keywords]}.\nAdd these keywords to the selected department?"
             )
             if st.form_submit_button("Yes"):
                 curr_keywords = contacts_df[contacts_df[selection]][

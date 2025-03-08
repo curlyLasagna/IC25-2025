@@ -188,18 +188,25 @@ def _(mo):
 
 
 @app.cell
-def _(alt, foia_cleaned_df):
-    base_dep = alt.Chart(foia_cleaned_df['department'].value_counts().reset_index().nlargest(10, 'count')).encode(
+def _(alt, pd):
+
+    base_dep = alt.Chart(pd.read_csv("./results.csv")['departments'].value_counts().reset_index().nlargest(10, 'count')).encode(
         theta=alt.Theta("count").stack(True),
-        color=alt.Color("department", scale=alt.Scale(scheme='category20c')).legend(None),
-        tooltip=["department", "count"]
+        color=alt.Color("departments", scale=alt.Scale(scheme='category20c')).legend(None),
+        tooltip=["departments", "count"]
     )
     dep_pie = base_dep.mark_arc()
 
-    dep_label = base_dep.mark_text(size=12, radius=175, limit=140).encode(text='department', color=alt.value('black'))
+    dep_label = base_dep.mark_text(size=12, radius=150, limit=140).encode(text='departments', color=alt.value('black'))
 
     (dep_pie + dep_label)
     return base_dep, dep_label, dep_pie
+
+
+@app.cell
+def _(pd):
+    results_csv = pd.read_csv("./results.csv")['departments']
+    return (results_csv,)
 
 
 @app.cell
