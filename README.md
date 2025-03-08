@@ -37,3 +37,9 @@ Generative AI was heavily used throughout this project
 > Make sure a venv is created and activated
 
 `marimo edit semantic_search.py`
+
+## Streamlit Prototype
+
+To run a quick prototype of our search app that will return department that semantic search considers as the best candidate   
+
+`streamlit run search_app.py`
