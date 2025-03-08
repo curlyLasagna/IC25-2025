@@ -1,7 +1,10 @@
 import marimo
 
 __generated_with = "0.11.13"
-app = marimo.App(width="medium")
+app = marimo.App(
+    width="medium",
+    layout_file="layouts/semantic_search.slides.json",
+)
 
 
 @app.cell
@@ -77,7 +80,7 @@ def _(pd):
 
 @app.cell
 def _(pd):
-    deparment_df = pd.read_csv('./data/departments.csv', encoding='latin-1').fillna('')
+    deparment_df = pd.read_csv('./data/department.csv', encoding='latin-1').fillna('')
     return (deparment_df,)
 
 
@@ -191,19 +194,20 @@ def _(bi_encoder, dep_corpus, foia_cleaned_df, query_embeddings, util):
         hit = util.semantic_search(foia_encoding, query_embeddings, top_k=1)
         dep_idx = hit[0][0]['corpus_id']
         score = hit[0][0]['score']
-        foia_cleaned_df.at[idx, 'department'] = f"{dep_corpus[dep_idx].split('|')[0]}" if score > .30 else "Unknown"
+        foia_cleaned_df.at[idx, 'department'] = f"{dep_corpus[dep_idx].split('|')[0]}" if score > .40 else "Unknown"
+        foia_cleaned_df.at[idx, 'score'] = score
     return data, dep_idx, foia_encoding, foia_row, hit, idx, score
 
 
 @app.cell
 def _(mo):
-    mo.md(r"""### Comparison between exact word matching and semantic search""")
+    mo.md(r"""### Cosine similarity results in labeling FOIAs by department""")
     return
 
 
 @app.cell
 def _(alt, foia_cleaned_df):
-    base_dep = alt.Chart(foia_cleaned_df['department'].value_counts().reset_index().nlargest(5, 'count')).encode(
+    base_dep = alt.Chart(foia_cleaned_df['department'].value_counts().reset_index().nlargest(10, 'count')).encode(
         theta=alt.Theta("count").stack(True),
         color=alt.Color("department", scale=alt.Scale(scheme='category20c')).legend(None),
         tooltip=["department", "count"]
@@ -213,7 +217,6 @@ def _(alt, foia_cleaned_df):
     dep_label = base_dep.mark_text(size=12, radius=175, limit=140).encode(text='department', color=alt.value('black'))
 
     (dep_pie + dep_label)
-    # (dep_pie + dep_label).save('departments.html')
     return base_dep, dep_label, dep_pie
 
 
@@ -225,33 +228,53 @@ def _(foia_cleaned_df):
     return dep, dep_frames
 
 
-app._unparsable_cell(
-    r"""
-    alt.Chart(dep_frames[\"Uknown\"]['keywords']
+@app.cell
+def _(alt, dep_frames):
+    alt.Chart(dep_frames["Unknown"]['keywords']
               .str.split(',')
               .explode()
               .value_counts()
               .reset_index(),
-              title = \"Keywords for uncategorized FOIA\"
+              title = "Keywords extracted from uncategorized FOIA"
              ).mark_bar().encode(
         x=alt.X('keywords', axis=alt.Axis(labelAngle=-45)).sort('-y'),
         y=alt.Y('count')
     ).properties(autosize="fit", width=1200).transform_filter(alt.FieldGTPredicate(field="count", gt=20)).save('unknown.html')
 
-    """,
-    name="_"
-)
+    return
 
 
 @app.cell
-def _(dep_frames):
-    dep_frames["Uknown"]['keywords'].str.split(',').explode().value_counts()
+def _():
     return
 
 
 @app.cell
 def _(dep_frames):
-    dep_frames["Amtrak PD"]['keywords'].str.split(',').explode().value_counts()
+    dep_frames
+    return
+
+
+@app.cell
+def _(alt, dep_frames):
+    for deps in dep_frames:
+        alt.Chart(dep_frames[deps]['keywords'].str.split(',')
+                  .explode()
+                  .value_counts()
+                  .reset_index()
+                  .nlargest(5, 'count'),
+                  title=deps
+                 ).mark_bar().encode(
+            alt.X("keywords"),
+            alt.Y("count")
+        ).save(f"{deps}.png")
+        print(f"Saved {deps}.png")
+    return (deps,)
+
+
+@app.cell
+def _(foia_cleaned_df):
+    foia_cleaned_df[foia_cleaned_df['score'] > .60]
     return
 
 
