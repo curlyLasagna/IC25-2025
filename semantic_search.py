@@ -1,7 +1,10 @@
 import marimo
 
 __generated_with = "0.11.13"
-app = marimo.App(width="medium")
+app = marimo.App(
+    width="medium",
+    layout_file="layouts/semantic_search.slides.json",
+)
 
 
 @app.cell
@@ -71,7 +74,7 @@ def _(pd):
 
 @app.cell
 def _(pd):
-    deparment_df = pd.read_csv('./data/departments.csv', encoding='latin-1').fillna('')
+    deparment_df = pd.read_csv('./data/department.csv', encoding='latin-1').fillna('')
     return (deparment_df,)
 
 
@@ -173,19 +176,20 @@ def _(bi_encoder, dep_corpus, foia_cleaned_df, query_embeddings, util):
         hit = util.semantic_search(foia_encoding, query_embeddings, top_k=1)
         dep_idx = hit[0][0]['corpus_id']
         score = hit[0][0]['score']
-        foia_cleaned_df.at[idx, 'department'] = f"{dep_corpus[dep_idx].split('|')[0]}" if score > .30 else "Unknown"
+        foia_cleaned_df.at[idx, 'department'] = f"{dep_corpus[dep_idx].split('|')[0]}" if score > .40 else "Unknown"
+        foia_cleaned_df.at[idx, 'score'] = score
     return data, dep_idx, foia_encoding, foia_row, hit, idx, score
 
 
 @app.cell
 def _(mo):
-    mo.md(r"""### Comparison between exact word matching and semantic search""")
+    mo.md(r"""### Cosine similarity results in labeling FOIAs by department""")
     return
 
 
 @app.cell
 def _(alt, foia_cleaned_df):
-    base_dep = alt.Chart(foia_cleaned_df['department'].value_counts().reset_index().nlargest(5, 'count')).encode(
+    base_dep = alt.Chart(foia_cleaned_df['department'].value_counts().reset_index().nlargest(10, 'count')).encode(
         theta=alt.Theta("count").stack(True),
         color=alt.Color("department", scale=alt.Scale(scheme='category20c')).legend(None),
         tooltip=["department", "count"]
@@ -195,7 +199,6 @@ def _(alt, foia_cleaned_df):
     dep_label = base_dep.mark_text(size=12, radius=175, limit=140).encode(text='department', color=alt.value('black'))
 
     (dep_pie + dep_label)
-    # (dep_pie + dep_label).save('departments.html')
     return base_dep, dep_label, dep_pie
 
 
@@ -207,33 +210,18 @@ def _(foia_cleaned_df):
     return dep, dep_frames
 
 
-app._unparsable_cell(
-    r"""
-    alt.Chart(dep_frames[\"Uknown\"]['keywords']
+@app.cell
+def _(alt, dep_frames):
+    alt.Chart(dep_frames["Unknown"]['keywords']
               .str.split(',')
               .explode()
               .value_counts()
               .reset_index(),
-              title = \"Keywords for uncategorized FOIA\"
+              title = "Keywords extracted from uncategorized FOIA"
              ).mark_bar().encode(
         x=alt.X('keywords', axis=alt.Axis(labelAngle=-45)).sort('-y'),
-        y=alt.Y('count')
-    # ).properties(autosize=\"fit\", width=1200).transform_filter(alt.FieldGTPredicate(field=\"count\", gt=20)).save('unknown.html')
+        y=alt.Y('count')).properties(autosize="fit", width=1200).transform_filter(alt.FieldGTPredicate(field="count", gt=60))
 
-    """,
-    name="_"
-)
-
-
-@app.cell
-def _(dep_frames):
-    dep_frames["Uknown"]['keywords'].str.split(',').explode().value_counts()
-    return
-
-
-@app.cell
-def _(dep_frames):
-    dep_frames["Amtrak PD"]['keywords'].str.split(',').explode().value_counts()
     return
 
 
@@ -264,24 +252,55 @@ def _(mo):
 @app.cell
 def _(foia_cleaned_df, pd):
     test_df = pd.read_csv("./data/department.csv", usecols=["Department", "Known FOIA"], encoding='latin-1').dropna()
+
+    matched_rows = []
     for ii, dd in test_df.iterrows():
-        print(foia_cleaned_df[foia_cleaned_df['Request ID'] == dd['Known FOIA']]['department'])
-        # print(dd['Department'], dd['Known FOIA'])
-        # print(dd['Department'] == foia_cleaned_df[foia_cleaned_df['Request ID'] == dd['Known FOIA']])
+        matched_department = foia_cleaned_df[foia_cleaned_df['Request ID'] == dd['Known FOIA']]
+        if (matched_department['department'] == dd['Department']).any():
+            matched_rows.append(matched_department)
 
-    # .merge(pd.read_csv("./data/pii/foia.csv"), left_on="test", right_on="Request ID")[['test', 'Request Description', 'name']]
-    return dd, ii, test_df
-
-
-@app.cell
-def _(foia_cleaned_df):
-    foia_cleaned_df[foia_cleaned_df['Request ID'] == '09-FOI-00002']
-    return
+    matched_df = pd.concat(matched_rows, ignore_index=True)
+    matched_df
+    return dd, ii, matched_department, matched_df, matched_rows, test_df
 
 
 @app.cell
 def _():
     # test_csv['keywords'] = test_csv['Request Description'].apply(lambda x: ','.join(keyword[0] for keyword in kw_model.extract_keywords(x, use_mmr=True, stop_words=["amtrak", "foia", "documents"])))
+    return
+
+
+@app.cell
+def _(dep_frames):
+    dep_frames
+    return
+
+
+@app.cell
+def _(alt, dep_frames):
+    for deps in dep_frames:
+        alt.Chart(dep_frames[deps]['keywords'].str.split(',')
+                  .explode()
+                  .value_counts()
+                  .reset_index()
+                  .nlargest(5, 'count'),
+                  title=deps
+                 ).mark_bar().encode(
+            alt.X("keywords"),
+            alt.Y("count")
+        ).save(f"{deps}.png")
+        print(f"Saved {deps}.png")
+    return (deps,)
+
+
+@app.cell
+def _(foia_cleaned_df):
+    foia_cleaned_df[foia_cleaned_df['score'] > .60]
+    return
+
+
+@app.cell
+def _():
     return
 
 
