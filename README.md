@@ -1,5 +1,25 @@
 # UMD IC25 - Amtrak FOIA Data Analysis (04)
 
+- [UMD IC25 - Amtrak FOIA Data Analysis (04)](#umd-ic25---amtrak-foia-data-analysis-04)
+  - [Abstract](#abstract)
+  - [Presentation](#presentation)
+  - [Results](#results)
+  - [Unprocessed Data](#unprocessed-data)
+  - [Use of AI](#use-of-ai)
+  - [Usage](#usage)
+    - [Getting started](#getting-started)
+    - [Running the classification script](#running-the-classification-script)
+    - [Run notebook](#run-notebook)
+    - [Streamlit Prototype](#streamlit-prototype)
+
+## Abstract
+
+To view the abstract, see [`Abstract.pdf`](./Abstract.pdf).
+
+## Presentation
+
+To view our presentation, see [`IC25 Presentation.pdf`](./IC25_Presentation.pdf).
+
 ## Results
 
 The results of the processed FOIA data is available in the [`results.csv`](./results.csv) file.
@@ -70,7 +90,7 @@ The results will appear in the [`results.csv`](./results.csv) file.
 
 `marimo edit semantic_search.py`
 
-## Streamlit Prototype
+### Streamlit Prototype
 
 To run a quick prototype of our search app that will return department that semantic search considers as the best candidate
 
