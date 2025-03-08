@@ -54,7 +54,7 @@ def match_categories(foia_description: str, categories: dict) -> CategoryMatch:
 
     for word in foia_description.split(" "):
         for dept_info, dept_keywords in categories.items():
-            dept_name_and_poc = f"{dept_info[0]} - {dept_info[1]}"
+            dept_name_and_poc = f"{dept_info[0]}"
 
             if word in dept_keywords.split(",") and len(word) > 0:
                 if dept_name_and_poc not in valid_categories:
