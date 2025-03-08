@@ -19,6 +19,15 @@ There is also some information that includes personally identifiable information
 also known as PII. This data is stored in the `data/pii/` directory, which
 unfortunately includes the actual *un-processed* FOIA dataset
 
+## Use of AI
+
+Generative AI was heavily used throughout this project
+|                 |                                                                                                                                                          |
+|-----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Platform        | Google AI Studio. Gemini 2.0 Flash model                                                                                                                 |
+| How it was used | Explain concepts concisely. How to generate a chart using Altair. Debug through errors. Determine where a keyword should go based on a department's name |
+| Learning points | Filtering dataframes. Applying functions to each row of a dataframe. What stop words are in the context of keyword extraction. Libraries to to use       |
+
 ## Notebook
 
 ### Dependencies
