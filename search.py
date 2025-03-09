@@ -10,7 +10,7 @@ def embed_contacts():
     corpus = []
     contacts_df = pd.read_csv(
         "./data/contacts.csv",
-        usecols=lambda x: x.lower() in ["name", "department", "keywords"],
+        usecols=lambda x: x.lower() in ["department", "keywords"],
         # So much random encoding issues -_-
         encoding="latin-1",
     )
