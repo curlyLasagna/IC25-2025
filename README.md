@@ -1,6 +1,7 @@
 # UMD IC25 - Amtrak FOIA Data Analysis (04)
 
 - [UMD IC25 - Amtrak FOIA Data Analysis (04)](#umd-ic25---amtrak-foia-data-analysis-04)
+  - [Authors](#authors) 
   - [Abstract](#abstract)
   - [Presentation](#presentation)
   - [Results](#results)
@@ -11,6 +12,10 @@
     - [Running the classification script](#running-the-classification-script)
     - [Run notebook](#run-notebook)
     - [Streamlit Prototype](#streamlit-prototype)
+
+## Authors
+
+Luis G. ([@curlyLasagna](https://github.com/curlyLasagna)), Andreas P. ([@Greek](https://github.com/Greek)), Rayquan W. ([@Factorial343](https://github.com/Factorial343))
 
 ## Abstract
 
