@@ -1,5 +1,7 @@
 # UMD IC25 - Amtrak FOIA Data Analysis (04)
 
+For this project's abstract/description, please see the [Abstract](#abstract) segment of the README.
+
 - [UMD IC25 - Amtrak FOIA Data Analysis (04)](#umd-ic25---amtrak-foia-data-analysis-04)
   - [Authors](#authors) 
   - [Abstract](#abstract)
